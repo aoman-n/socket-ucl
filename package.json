@@ -1,0 +1,41 @@
+{
+  "name": "socket-ucl",
+  "version": "0.1.0",
+  "description": "",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "bin": {
+    "socket-ucl": "./bin/main.js"
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "start": "ts-node ./src/index.ts",
+    "lint": "eslint '*/**/*.{js,ts}' --quiet --fix",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Aohiro",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/node": "12.12.58",
+    "@types/socket.io-client": "1.4.33",
+    "@typescript-eslint/eslint-plugin": "4.1.0",
+    "@typescript-eslint/parser": "4.1.0",
+    "eslint": "7.8.1",
+    "eslint-config-prettier": "6.11.0",
+    "eslint-config-standard-with-typescript": "19.0.1",
+    "eslint-plugin-import": "2.22.0",
+    "eslint-plugin-node": "11.1.0",
+    "eslint-plugin-prettier": "3.1.4",
+    "eslint-plugin-promise": "4.2.1",
+    "eslint-plugin-standard": "4.0.1",
+    "prettier": "2.1.1",
+    "ts-node": "9.0.0",
+    "typescript": "4.0.2"
+  },
+  "dependencies": {
+    "socket.io-client": "2.3.0"
+  }
+}
