@@ -1,11 +1,17 @@
-import readline from 'readline'
 import program from 'commander'
-import { connectSocket } from './socket'
+import { sendEventer, receiveEvents } from './socket'
+import { eventsQuestion, eventPayloadQuestion } from './questions'
+
+const types = {
+  sender: 'sender',
+  receiver: 'receiver',
+}
 
 program
   .name('socket-ucl')
   .version('0.0.1')
   .usage('[options]')
+  .option('-t, --type <TYPE>', 'hogehoge', types.sender)
   .option(
     '-u, --url <URL_TO_CONNECT>',
     'Use specified <URL_TO_CONNECT> connect. it is required options.',
@@ -14,53 +20,38 @@ program
 
 program.parse(process.argv)
 
-const url: string = program.url
-const events: string[] = program.event || []
+const main = async () => {
+  const type: string = program.type
+  const url: string = program.url
+  const events: string[] = program.event || []
 
-if (url === undefined || url === '') {
-  console.log('please specify `-u` or `--url` option.')
-  process.exit(1)
-}
+  if (type === undefined || type === '') {
+    console.log('please specify `-u` or `--url` option.')
+    return
+  }
 
-console.log({ url, events })
+  if (!Object.values(types).includes(type)) {
+    console.log('not allow type. please specify `sender` or `receiver`')
+    return
+  }
 
-const commands = {
-  exit: 'exit',
-}
+  if (url === undefined || url === '') {
+    console.log('please specify `-u` or `--url` option.')
+    return
+  }
 
-const lr = readline.createInterface({
-  input: process.stdin,
-  output: process.stdout,
-})
-
-lr.on('close', () => {
-  console.log('thank you!')
-})
-
-const questions = (socket: SocketIOClient.Socket) => {
-  lr.question('eventName > ', (eventName) => {
-    if (eventName === commands.exit) {
-      lr.close()
-      return
+  if (type === types.sender) {
+    sendEventer({ url }, eventPayloadQuestion)
+  } else if (type === types.receiver) {
+    if (events.length === 0) {
+      const events = await eventsQuestion()
+      receiveEvents({ url, events })
+    } else {
+      receiveEvents({ url, events })
     }
-
-    lr.question('payload > ', (payload) => {
-      if (payload === commands.exit) {
-        lr.close()
-        return
-      }
-
-      socket.emit(eventName, payload)
-
-      questions(socket)
-    })
-  })
+  }
 }
 
-connectSocket(
-  {
-    url: url,
-    events: events,
-  },
-  questions,
-)
+main().catch((err) => {
+  console.log('err: ', err)
+})
