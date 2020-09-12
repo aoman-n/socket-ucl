@@ -2,10 +2,9 @@
   "name": "socket-ucl",
   "version": "0.1.0",
   "description": "",
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
+  "main": "./bin/socket-ucl.js",
   "bin": {
-    "socket-ucl": "./bin/main.js"
+    "socket-ucl": "./bin/socket-ucl.js"
   },
   "files": [
     "dist"
@@ -42,6 +41,7 @@
   "dependencies": {
     "commander": "6.1.0",
     "inquirer": "7.3.3",
+    "query-string": "6.13.1",
     "socket.io-client": "2.3.0"
   },
   "engines": {
