@@ -1,13 +1,49 @@
 import inquirer, { QuestionCollection } from 'inquirer'
 
-const receivceEventsQuestion: QuestionCollection<{ event: string }> = [
+export const types = {
+  sender: 'sender',
+  receiver: 'receiver',
+}
+
+export enum Types {
+  Sender,
+  Receiver,
+}
+
+const typeQuestion: QuestionCollection<{ type: string }> = [
   {
-    name: 'event',
-    message: 'イベント名を入力してください',
+    type: 'list',
+    name: 'type',
+    message: 'TYPEを選択してください',
+    choices: [types.sender, types.receiver],
   },
 ]
 
-export const eventsQuestion = async () => {
+export const inquireType = async () => {
+  const { type } = await inquirer.prompt(typeQuestion)
+  return type
+}
+
+const urlQuestion: QuestionCollection<{ url: string }> = [
+  {
+    name: 'url',
+    message: 'URLを入力してください',
+  },
+]
+
+export const inquireUrl = async () => {
+  const { url } = await inquirer.prompt(urlQuestion)
+  return url
+}
+
+const receivceEventsQuestion: QuestionCollection<{ event: string }> = [
+  {
+    name: 'event',
+    message: 'イベント名を入力してください。指定が終了したら`run`と入力',
+  },
+]
+
+export const inquirerEvents = async () => {
   const events: string[] = []
 
   const eventLoop = async () => {
@@ -18,7 +54,7 @@ export const eventsQuestion = async () => {
       return
     }
 
-    eventLoop().catch((err) => {
+    await eventLoop().catch((err) => {
       console.log('err: ', err)
     })
   }
@@ -28,12 +64,12 @@ export const eventsQuestion = async () => {
   return events
 }
 
-interface QuestionAnswer {
+export interface EventPayloadAnswer {
   event: string
   payload: string
 }
 
-const senderAnswer: QuestionCollection<QuestionAnswer> = [
+const senderAnswer: QuestionCollection<EventPayloadAnswer> = [
   {
     name: 'event',
     message: 'イベント名を入力してください',
@@ -44,16 +80,6 @@ const senderAnswer: QuestionCollection<QuestionAnswer> = [
   },
 ]
 
-export const eventPayloadQuestion = async (socket: SocketIOClient.Socket) => {
-  const { event, payload } = await inquirer.prompt(senderAnswer)
-
-  if (event === 'exit' || payload === 'exit') {
-    socket.close()
-    return
-  }
-
-  socket.emit(event, payload)
-  eventPayloadQuestion(socket).catch((err) => {
-    console.log('err: ', err)
-  })
+export const inquireEventPayload = async () => {
+  return await inquirer.prompt(senderAnswer)
 }

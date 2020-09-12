@@ -1,17 +1,13 @@
 import program from 'commander'
-import { sendEventer, receiveEvents } from './socket'
-import { eventsQuestion, eventPayloadQuestion } from './questions'
-
-const types = {
-  sender: 'sender',
-  receiver: 'receiver',
-}
+import { sendEventer, receiveEvents, sendSocketCallback } from './socket'
+import { inquireEventPayload, types } from './questions'
+import { scanUrl, scanType, scanEvents } from './scanner'
 
 program
   .name('socket-ucl')
   .version('0.0.1')
   .usage('[options]')
-  .option('-t, --type <TYPE>', 'hogehoge', types.sender)
+  .option('-t, --type <TYPE>', 'hogehoge')
   .option(
     '-u, --url <URL_TO_CONNECT>',
     'Use specified <URL_TO_CONNECT> connect. it is required options.',
@@ -21,34 +17,16 @@ program
 program.parse(process.argv)
 
 const main = async () => {
-  const type: string = program.type
-  const url: string = program.url
-  const events: string[] = program.event || []
-
-  if (type === undefined || type === '') {
-    console.log('please specify `-u` or `--url` option.')
-    return
-  }
-
-  if (!Object.values(types).includes(type)) {
-    console.log('not allow type. please specify `sender` or `receiver`')
-    return
-  }
-
-  if (url === undefined || url === '') {
-    console.log('please specify `-u` or `--url` option.')
-    return
-  }
+  const type: string = await scanType(program.type)
+  const url: string = await scanUrl(program.url)
 
   if (type === types.sender) {
-    sendEventer({ url }, eventPayloadQuestion)
+    sendEventer({ url }, sendSocketCallback(inquireEventPayload))
   } else if (type === types.receiver) {
-    if (events.length === 0) {
-      const events = await eventsQuestion()
-      receiveEvents({ url, events })
-    } else {
-      receiveEvents({ url, events })
-    }
+    const events: string[] = await scanEvents(program.event)
+    receiveEvents({ url, events })
+  } else {
+    console.log('I was handed an unexpected type. specify `sender` or `receiver`')
   }
 }
 

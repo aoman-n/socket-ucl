@@ -1,5 +1,5 @@
 import io from 'socket.io-client'
-// import qs from 'query-string'
+import { EventPayloadAnswer } from './questions'
 
 export interface SenderConfig {
   url: string
@@ -47,9 +47,29 @@ export const receiveEvents = ({ url, events }: ReceiverConfig) => {
 
   onDefaultEvents(socket)
 
+  const eventsStr = events.reduce((acc, cur) => `${acc}\n- ${cur}`, 'onEvents...')
+  console.log(eventsStr)
+
   for (const e of events) {
     socket.on(e, (data: string) => {
       console.log('receivce data: ', JSON.stringify(data))
     })
   }
+}
+
+export const sendSocketCallback = (inquireEventPayload: () => Promise<EventPayloadAnswer>) => {
+  const callback = async (socket: SocketIOClient.Socket) => {
+    const { event, payload } = await inquireEventPayload()
+
+    if (event === 'exit' || payload === 'exit') {
+      socket.close()
+    }
+
+    socket.emit(event, payload)
+    callback(socket).catch((err) => {
+      console.log('err: ', err)
+    })
+  }
+
+  return callback
 }
