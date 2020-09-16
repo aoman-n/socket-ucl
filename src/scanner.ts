@@ -1,5 +1,6 @@
 import { inquirerEvents, inquireUrl, types, inquireType } from './questions'
 
+// 必須パラメータ
 export const scanUrl = async (url: string | undefined) => {
   if (url) {
     return url
@@ -8,6 +9,7 @@ export const scanUrl = async (url: string | undefined) => {
   return await inquireUrl()
 }
 
+// 必須パラメータ
 export const scanType = async (type: string | undefined) => {
   if (type) {
     if (Object.values(types).includes(type)) {
@@ -18,6 +20,7 @@ export const scanType = async (type: string | undefined) => {
   return await inquireType()
 }
 
+// 必須パラメータ
 export const scanEvents = async (events: string[] | undefined) => {
   if (events === undefined || events.length === 0) {
     return await inquirerEvents()
@@ -26,17 +29,11 @@ export const scanEvents = async (events: string[] | undefined) => {
   return events
 }
 
-// if (type === undefined || type === '') {
-//   console.log('please specify `-u` or `--url` option.')
-//   return
-// }
+// オプショナルパラメータ
+export const scanQueries = (queries: string[] | undefined) => {
+  if (!queries) {
+    return []
+  }
 
-// if (!Object.values(types).includes(type)) {
-//   console.log('not allow type. please specify `sender` or `receiver`')
-//   return
-// }
-
-// if (url === undefined || url === '') {
-//   console.log('please specify `-u` or `--url` option.')
-//   return
-// }
+  return queries
+}

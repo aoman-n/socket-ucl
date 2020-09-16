@@ -3,11 +3,13 @@ import { EventPayloadAnswer } from './questions'
 
 export interface SenderConfig {
   url: string
+  queries: string[]
 }
 
 export interface ReceiverConfig {
   url: string
   events: string[]
+  queries: string[]
 }
 
 type Callback = (socket: SocketIOClient.Socket) => Promise<void>
@@ -20,10 +22,12 @@ const onDefaultEvents = (socket: SocketIOClient.Socket) => {
   })
 }
 
-export const sendEventer = ({ url }: SenderConfig, callback: Callback) => {
-  console.log(`try to connect. url: ${url}`)
+export const sendEventer = ({ url, queries }: SenderConfig, callback: Callback) => {
+  console.log({ url, queries })
 
-  const socket = io(url)
+  console.log(`try to connect. url: ${url}?${queries.join('&')}`)
+
+  const socket = io(`${url}?${queries.join('&')}`)
 
   socket.on('connect', async () => {
     console.log('success connect!')
@@ -36,10 +40,10 @@ export const sendEventer = ({ url }: SenderConfig, callback: Callback) => {
   onDefaultEvents(socket)
 }
 
-export const receiveEvents = ({ url, events }: ReceiverConfig) => {
+export const receiveEvents = ({ url, events, queries }: ReceiverConfig) => {
   console.log(`try to connect. url: ${url}`)
 
-  const socket = io(url)
+  const socket = io(`${url}?${queries.join('&')}`)
 
   socket.on('connect', () => {
     console.log('success connect!')
